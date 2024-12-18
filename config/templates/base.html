@@ -1,0 +1,31 @@
+{% load news_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    {% include 'components/_style.html' %}
+
+    <title>
+      {% block title %}
+      {% endblock title %}
+    </title>
+
+</head>
+<body>
+
+{% include 'components/_navbar.html' %}
+
+<main class="mb-5 mt-5">
+  {% block main %}
+  {% endblock main %}
+</main>
+
+
+{% include 'components/_footer.html' %}
+
+{% include 'components/_script.html' %}
+
+</body>
+</html>

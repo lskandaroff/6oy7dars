@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load news_tags %}
+
+{% block title %}
+{{ title }}
+{% endblock title %}
+
+{% block main %}
+<div class="mb-5 d-flex justify-content-around">
+    {% all_types as types %}
+    {% for type in types %}
+    <a href="{% url 'flower_by_type' type.id %}" class="btn btn-primary btn-rounded" data-mdb-ripple-init>{{ type.name }}</a>
+    {% endfor %}
+  </div>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for flower in flowers %}
+  <div class="col">
+    <div class="card h-100">
+      <a href="{% url 'about_flowers' flower.id %}">
+        <img src="{{flower.photo.url}}" class="card-img-top" alt="Flowers"/>
+      </a>
+      <div class="card-body">
+        <h5 class="card-title">{{ flower.name }}</h5>
+        <p class="card-text">
+          {{ flower.description|truncatewords:10 }}
+        </p>
+        <p class="card-text">
+          Narxi: {{ flower.price }}
+        </p>
+      </div>
+      <div class="card-footer">
+        <small class="text-muted">{{ flower.created_at }}</small>
+        <small class="text-muted">views {{ flower.views }}</small>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock main %}
