@@ -1,5 +1,6 @@
+from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 
 from .models import Flower, Type
 from .forms import FlowerForm, TypeForm
@@ -71,3 +72,46 @@ def add_type(request: WSGIRequest):
     }
 
     return render(request, 'add_type.html', context)
+
+def update_flower(request: WSGIRequest, flower_id):
+    flower = get_object_or_404(Flower, pk=flower_id)
+
+    if request.method == "POST":
+        form = FlowerForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            flower.name = form.cleaned_data.get('name')
+            flower.color = form.cleaned_data.get('color')
+            flower.description = form.cleaned_data.get('description')
+            flower.price = form.cleaned_data.get('price')
+            flower.photo = form.cleaned_data.get('photo') if form.cleaned_data.get('photo') else flower.photo
+            flower.save()
+            messages.success(request, 'Maqola ozgartirildi')
+
+
+
+    forms = FlowerForm(initial={
+        'name': flower.name,
+        'color': flower.color,
+        'description': flower.description,
+        'price': flower.price,
+        'photo': flower.photo,
+
+    })
+
+    context = {
+        'forms': forms,
+    }
+
+    return render(request, 'add_flower.html', context)
+
+def delete_flower(request, flower_id):
+    flower = get_object_or_404(Flower, pk=flower_id)
+    if request.method == 'POST':
+        flower.delete()
+        messages.success(request, 'Maqola ochirildi')
+        return redirect('home')
+
+    context = {
+        'flower': flower
+    }
+    return render(request, 'confirm_delete.html', context)

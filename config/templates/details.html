@@ -6,6 +6,18 @@
 
 
   {% block main %}
+
+
+    <div class="row row-cols-1 row-cols-md-8 g-10">
+      <div class="d-flex flex-row-reverse">
+        <a href="{% url 'delete_flower' flowers.pk %}"><i class="fas fa-trash"></i></a>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+       <a href="{% url 'update_flower' flowers.id %}"><i class="fas fa-pen"></i></a>
+      </div>
+
     <div class="row row-cols-1 row-cols-md-3 g-4">
   <div class="col">
     <div class="card h-100">

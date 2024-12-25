@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<form method="post">
+    {% csrf_token %}
+    <h2>{{ flower.name }}</h2>
+    <p>Maqolani o'chirmoqchimisiz?</p>
+    <button type="submit">OK</button>
+    <a href="{% url 'about_flowers' flower.pk %}">Ortga</a>
+
+
+</form>
+{% endblock main %}
