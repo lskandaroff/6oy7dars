@@ -3,7 +3,9 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 
 from .models import Flower, Type
-from .forms import FlowerForm, TypeForm
+from .forms import FlowerForm, TypeForm, RegisterForm, LoginForm
+from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate
 
 def home(request):
     flowers = Flower.objects.all()
@@ -44,9 +46,9 @@ def about_flowers(request, flower_id):
 def add_flower(request: WSGIRequest):
 
     if request.method == "POST":
-        form =FlowerForm(data=request.POST, files=request.FILES)
+        form = FlowerForm(data=request.POST, files=request.FILES)
         if form.is_valid():
-            flower = Flower.objects.create(**form.cleaned_data)
+            flower = form.create()
             print(flower, 'qoshildi!')
 
     forms = FlowerForm()
@@ -79,12 +81,7 @@ def update_flower(request: WSGIRequest, flower_id):
     if request.method == "POST":
         form = FlowerForm(data=request.POST, files=request.FILES)
         if form.is_valid():
-            flower.name = form.cleaned_data.get('name')
-            flower.color = form.cleaned_data.get('color')
-            flower.description = form.cleaned_data.get('description')
-            flower.price = form.cleaned_data.get('price')
-            flower.photo = form.cleaned_data.get('photo') if form.cleaned_data.get('photo') else flower.photo
-            flower.save()
+            form.update(flower)
             messages.success(request, 'Maqola ozgartirildi')
 
 
@@ -115,3 +112,57 @@ def delete_flower(request, flower_id):
         'flower': flower
     }
     return render(request, 'confirm_delete.html', context)
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(data=request.POST)
+        if form.is_valid():
+            password = form.cleaned_data.get('password')
+            password_repeat = form.cleaned_data.get('password_repeat')
+            if password == password_repeat:
+                user = User.objects.create_user(
+                    form.cleaned_data.get('username'),
+                    form.cleaned_data.get('email'),
+                    password
+                )
+                messages.success(request, 'Registeratsiya muvaffaqiyatli boldi')
+                return redirect('login')
+
+    context = {
+        'form': RegisterForm()
+    }
+    return render(request, 'auth/register.html', context)
+
+
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            messages.success(request, 'Xush kelibsiz')
+            login(request, user)
+            return redirect('home')
+    context = {
+        'form': LoginForm()
+    }
+
+    return render(request, 'auth/login.html', context)
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+
+
+
+
+
+
+
+
+
+
