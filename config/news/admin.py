@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Type, Flower
+from .models import Type, Flower, Comment
 
 # Register your models here.
 
 admin.site.register(Type)
+admin.site.register(Comment)
 
 
 class FlowerAdmin(admin.ModelAdmin):

@@ -5,34 +5,60 @@
 {% endblock title %}
 
 
-  {% block main %}
+{% block main %}
 
 
-    <div class="row row-cols-1 row-cols-md-8 g-10">
-      <div class="d-flex flex-row-reverse">
+<div class="row row-cols-1 row-cols-md-8 g-10">
+    <div class="d-flex flex-row-reverse">
         <a href="{% url 'delete_flower' flowers.pk %}"><i class="fas fa-trash"></i></a>
         &nbsp;
         &nbsp;
         &nbsp;
         &nbsp;
-       <a href="{% url 'update_flower' flowers.id %}"><i class="fas fa-pen"></i></a>
-      </div>
+        <a href="{% url 'update_flower' flowers.id %}"><i class="fas fa-pen"></i></a>
+    </div>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
-  <div class="col">
-    <div class="card h-100">
-      <img src="{{ flowers.photo.url }}" class="card-img-top" alt="Flowers"/>
-      <div class="card-body">
-        <h5 class="card-title">{{ flowers.name }}</h5>
-        <p class="card-text">
-          {{ flowers.description}}
-        </p>
-      </div>
-      <div class="card-footer">
-        <small class="text-muted">{{ flowers.created_at }}</small>
-      </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="{{ flowers.photo.url }}" class="card-img-top" alt="Flowers"/>
+                <div class="card-body">
+                    <h5 class="card-title">{{ flowers.name }}</h5>
+                    <p class="card-text">
+                        {{ flowers.description}}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">{{ flowers.created_at }}</small>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-  {% endblock main %}
+
+    {% if request.user.is_authenticated %}
+    <form method="post" action="{% url 'comment_save' flowers.pk %}" class="mb-5">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+    {% else %}
+    <p>Komment qoldirish un avval login qiling <a href="{% url 'login' %}">Login</a></p>
+    {% endif %}
+
+    {% for comment in comments %}
+    <div class="card border border-success shadow-0 mb-3" style="max-width: 100rem;">
+        <div class="card-header bg-transparent border-success">by {{ comment.author.username }}
+            {% if request.user == comment.author or request.user.is_superuser %}
+            <a href="{% url 'comment_delete' comment.pk %}"><i class="fas fa-trash"></i></a>
+            {% endif %}
+        </div>
+        <div class="card-body text-success">
+            <p class="card-text">{{ comment.text }}</p>
+        </div>
+        <div class="card-footer bg-transparent border-success">{{ comment.created }}</div>
+    </div>
+    {% endfor %}
+
+
+    {% endblock main %}
 

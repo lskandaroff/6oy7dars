@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 
-from .models import Flower, Type
-from .forms import FlowerForm, TypeForm, RegisterForm, LoginForm
+from .models import Flower, Type, Comment
+from .forms import FlowerForm, TypeForm, RegisterForm, LoginForm, CommentForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 
@@ -36,7 +36,9 @@ def about_flowers(request, flower_id):
 
     context = {
         'flowers': flowers,
-        'title': flowers.name
+        'title': flowers.name,
+        'comments': Comment.objects.filter(post_id=flower_id),
+        'form':CommentForm()
     }
 
 
@@ -127,9 +129,11 @@ def register(request):
                 )
                 messages.success(request, 'Registeratsiya muvaffaqiyatli boldi')
                 return redirect('login')
+    else:
+        form = RegisterForm()
 
     context = {
-        'form': RegisterForm()
+        'form': form
     }
     return render(request, 'auth/register.html', context)
 
@@ -154,6 +158,40 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def comment_save(request, flower_id):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = CommentForm(data=request.POST)
+            if form.is_valid():
+                flower = get_object_or_404(Flower, pk=flower_id)
+                Comment.objects.create(
+                    text=form.cleaned_data.get('text'),
+                    author=request.user,
+                    post=flower
+                )
+                messages.success(request, 'comment qoshildi')
+            return redirect('about_flowers', flower_id=flower_id)
+    messages.error(request, 'avval login qiling')
+    return redirect('login')
+
+def comment_delete(request, flower_id):
+    if request.user.is_authinticated:
+        comment = get_object_or_404(Comment, pk=flower_id)
+        if request.user == comment.author or request.user.is_superuser:
+            post_id = comment.post.pk
+            comment.delete()
+            messages.success(request, 'comment ochirildi')
+            return redirect('about_flowers', post_id)
+
+    messages.error(request, 'avval login qiling')
+    return redirect('login')
+
+
+
+
+
+
 
 
 

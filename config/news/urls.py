@@ -12,4 +12,6 @@ urlpatterns = [
     path('auth/register/', register, name='register'),
     path('auth/login/', login_view, name='login'),
     path('auth/logout/', logout_view, name='logout'),
+    path('flowers/<int:flower_id>/comment/save/', comment_save, name="comment_save"),
+    path('flowers/comment/<int:flower_id>/delete', comment_delete, name='comment_delete')
 ]
